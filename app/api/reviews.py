@@ -17,7 +17,7 @@ async def create_review(review: ReviewCreate, user_id: int = Depends(get_current
         return {"message": "Review creada", "id": str(result.inserted_id)}
     except Exception as e:
         print(f"Error al crear review: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor al guardar la review")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/user/{user_id}")
 async def get_user_reviews(user_id: int, current_user_id: int = Depends(get_current_user_id)):
