@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Literal
 
 class SolicitudCreate(BaseModel):
     book_id: int
@@ -9,4 +10,4 @@ class MessageCreate(BaseModel):
     text: str
 
 class StatusUpdate(BaseModel):
-    status: str  # pendiente, aceptada, rechazada, cancelada, entregado, devuelto
+    status: Literal["pendiente", "aceptada", "rechazada", "cancelada", "entregado", "devuelto"]
