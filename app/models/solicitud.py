@@ -10,4 +10,4 @@ class MessageCreate(BaseModel):
     text: str
 
 class StatusUpdate(BaseModel):
-    status: Literal["pendiente", "aceptada", "rechazada", "cancelada", "entregado", "devuelto"]
+    status: Literal["pendiente", "aceptada", "rechazada", "cancelada"]
