@@ -9,6 +9,7 @@ Este documento detalla los pasos necesarios para levantar el microservicio y val
   ```env
   MONGO_URL=mongodb://localhost:27017
   JWT_SECRET=tu_clave_secreta_aqui
+  INGESTA_API_KEY=tu_api_key_para_ingesta
   ```
 
 ---
