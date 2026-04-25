@@ -2,7 +2,7 @@ import jwt
 from fastapi import HTTPException, Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.security.api_key import APIKeyHeader
-from app.core.config import JWT_SECRET, INGESTA_API_KEY
+from app.core.config import JWT_SECRET, ADMIN_KEY
 
 security = HTTPBearer()
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
@@ -23,6 +23,6 @@ def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(secu
         raise HTTPException(status_code=401, detail="Formato de token inválido")
 
 def get_api_key(api_key: str = Security(api_key_header)):
-    if api_key == INGESTA_API_KEY:
+    if api_key == ADMIN_KEY:
         return api_key
     raise HTTPException(status_code=403, detail="Acceso denegado: API Key inválida para ingesta")
