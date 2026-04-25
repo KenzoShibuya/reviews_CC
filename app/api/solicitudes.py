@@ -1,11 +1,36 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from datetime import datetime, timezone
+from typing import Optional
 from bson import ObjectId
 from app.models.solicitud import SolicitudCreate, MessageCreate, StatusUpdate
 from app.db.mongodb import db
 from app.middleware.auth import get_current_user_id
 
 router = APIRouter(prefix="/api/solicitudes", tags=["Solicitudes"])
+
+@router.get("")
+async def get_solicitudes(
+    book_id: Optional[int] = Query(None),
+    buyer_id: Optional[int] = Query(None),
+    seller_id: Optional[int] = Query(None),
+    status: Optional[str] = Query(None),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    query = {}
+    if book_id is not None:
+        query["book_id"] = book_id
+    if buyer_id is not None:
+        query["buyer_id"] = buyer_id
+    if seller_id is not None:
+        query["seller_id"] = seller_id
+    if status is not None:
+        query["status"] = status
+    cursor = db.solicitudes_collection.find(query)
+    solicitudes = []
+    async for document in cursor:
+        document["_id"] = str(document["_id"])
+        solicitudes.append(document)
+    return solicitudes
 
 @router.post("")
 async def create_solicitud(solicitud: SolicitudCreate, user_id: int = Depends(get_current_user_id)):
