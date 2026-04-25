@@ -1,14 +1,14 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.api import reviews, solicitudes, export
 from app.db.mongodb import db
+from app.core.config import ALLOWED_ORIGINS
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Lógica de encendido
     await db.connect()
     yield
-    # Lógica de apagado
     await db.close()
 
 app = FastAPI(
@@ -18,7 +18,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Incluir los routers
+origins = ["*"] if not ALLOWED_ORIGINS else [ALLOWED_ORIGINS]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Api-Key"],
+)
+
 app.include_router(reviews.router)
 app.include_router(solicitudes.router)
 app.include_router(export.router)
