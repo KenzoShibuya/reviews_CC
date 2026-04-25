@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from datetime import datetime, timezone
+from math import ceil
 from typing import Optional
 from bson import ObjectId
 from app.models.solicitud import SolicitudCreate, MessageCreate, StatusUpdate
@@ -14,6 +15,8 @@ async def get_solicitudes(
     buyer_id: Optional[int] = Query(None),
     seller_id: Optional[int] = Query(None),
     status: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
     current_user_id: int = Depends(get_current_user_id)
 ):
     query = {}
@@ -25,12 +28,13 @@ async def get_solicitudes(
         query["seller_id"] = seller_id
     if status is not None:
         query["status"] = status
-    cursor = db.solicitudes_collection.find(query)
-    solicitudes = []
+    total = await db.solicitudes_collection.count_documents(query)
+    cursor = db.solicitudes_collection.find(query).skip((page - 1) * size).limit(size)
+    data = []
     async for document in cursor:
         document["_id"] = str(document["_id"])
-        solicitudes.append(document)
-    return solicitudes
+        data.append(document)
+    return {"data": data, "total": total, "page": page, "size": size, "totalPages": ceil(total / size) if total else 0}
 
 @router.post("")
 async def create_solicitud(solicitud: SolicitudCreate, user_id: int = Depends(get_current_user_id)):
@@ -50,16 +54,20 @@ async def create_solicitud(solicitud: SolicitudCreate, user_id: int = Depends(ge
     return {"message": "Solicitud creada", "id": str(result.inserted_id)}
 
 @router.get("/user/{user_id}")
-async def get_user_solicitudes(user_id: int, current_user: int = Depends(get_current_user_id)):
-    # Solo permitimos ver solicitudes si eres el dueño del perfil o el orquestador
-    cursor = db.solicitudes_collection.find({
-        "$or": [{"buyer_id": user_id}, {"seller_id": user_id}]
-    })
-    solicitudes = []
+async def get_user_solicitudes(
+    user_id: int,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    current_user: int = Depends(get_current_user_id)
+):
+    query = {"$or": [{"buyer_id": user_id}, {"seller_id": user_id}]}
+    total = await db.solicitudes_collection.count_documents(query)
+    cursor = db.solicitudes_collection.find(query).skip((page - 1) * size).limit(size)
+    data = []
     async for document in cursor:
         document["_id"] = str(document["_id"])
-        solicitudes.append(document)
-    return solicitudes
+        data.append(document)
+    return {"data": data, "total": total, "page": page, "size": size, "totalPages": ceil(total / size) if total else 0}
 
 @router.get("/{id}")
 async def get_solicitud(id: str, current_user_id: int = Depends(get_current_user_id)):
