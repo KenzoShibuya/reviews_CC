@@ -4,15 +4,6 @@ from app.middleware.auth import get_api_key
 
 router = APIRouter(prefix="/api/export", tags=["Ingesta Data Science"])
 
-@router.get("/reviews", summary="Extraer 100% de Reviews (Para Analytics)")
-async def export_reviews(api_key: str = Depends(get_api_key)):
-    cursor = db.reviews_collection.find({})
-    reviews = []
-    async for document in cursor:
-        document["_id"] = str(document["_id"])
-        reviews.append(document)
-    return reviews
-
 @router.get("/solicitudes", summary="Extraer 100% de Solicitudes (Para Analytics)")
 async def export_solicitudes(api_key: str = Depends(get_api_key)):
     cursor = db.solicitudes_collection.find({})

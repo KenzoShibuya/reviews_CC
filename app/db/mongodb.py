@@ -4,14 +4,12 @@ from app.core.config import MONGO_URL
 class MongoDB:
     client: AsyncIOMotorClient = None
     db = None
-    reviews_collection = None
     solicitudes_collection = None
 
     @classmethod
     async def connect(cls):
         cls.client = AsyncIOMotorClient(MONGO_URL)
-        cls.db = cls.client.reviews_db
-        cls.reviews_collection = cls.db.reviews
+        cls.db = cls.client.solicitudes_db
         cls.solicitudes_collection = cls.db.solicitudes
         print("Conexión a MongoDB establecida")
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.api import reviews, solicitudes, export
+from app.api import solicitudes, export
 from app.db.mongodb import db
 from app.core.config import ALLOWED_ORIGINS
 
@@ -27,7 +27,6 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Api-Key"],
 )
 
-app.include_router(reviews.router)
 app.include_router(solicitudes.router)
 app.include_router(export.router)
 
