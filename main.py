@@ -30,6 +30,10 @@ app.add_middleware(
 app.include_router(solicitudes.router)
 app.include_router(export.router)
 
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "ok"}
+
 @app.get("/")
 async def root():
     return {
